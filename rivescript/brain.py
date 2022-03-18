@@ -672,7 +672,7 @@ class Brain(object):
                 if "=" in data:
                     # Setting a bot/env variable.
                     parts = data.split("=")
-                    parts[1] = self.callobjects(user, parts[1]);
+                    parts[1] = self.callobjects(user, parts[1], ignore_object_errors);
                     self.say("Set " + tag + " variable " + text_type(parts[0]) + "=" + text_type(parts[1]))
                     target[parts[0]] = parts[1]
                 else:
@@ -681,7 +681,7 @@ class Brain(object):
             elif tag == "set":
                 # <set> user vars.
                 parts = data.split("=")
-                parts[1] = self.callobjects(user, parts[1]);
+                parts[1] = self.callobjects(user, parts[1], ignore_object_errors);
                 self.say("Set uservar " + text_type(parts[0]) + "=" + text_type(parts[1]))
                 self.master.set_uservar(user, parts[0], parts[1])
             elif tag in ["add", "sub", "mult", "div"]:
@@ -746,11 +746,11 @@ class Brain(object):
             reply = reply.replace('{{@{match}}}'.format(match=match), subreply)
 
         # Object caller.
-        reply = self.callobjects(user, reply);
+        reply = self.callobjects(user, reply, ignore_object_errors);
 
         return reply
 
-    def callobjects(self, user, input):
+    def callobjects(self, user, input, ignore_object_errors):
         reCall = re.findall(r'{__call__}(.+?){/__call__}', input)
         for match in reCall:
             parts  = re.split(RE.ws, match)
