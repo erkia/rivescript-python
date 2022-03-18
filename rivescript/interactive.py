@@ -182,9 +182,15 @@ def interactive_mode():
         type=int,
         default=50,
     )
+    parser.add_argument("--include",
+        help="A directory containing RiveScript files (*.rive) to load.",
+        type=text_type,
+        action="append",
+    )
     parser.add_argument("path",
         help="A directory containing RiveScript files (*.rive) to load.",
         type=text_type,
+        nargs="*",
         # required=True,
     )
     args = parser.parse_args()
@@ -197,7 +203,10 @@ def interactive_mode():
         utf8=args.utf8,
         log=args.log
     )
-    bot.load_directory(args.path)
+    for dir in args.include:
+        bot.load_directory(dir)
+    for dir in args.path:
+        bot.load_directory(dir)
     bot.sort_replies()
 
     # Interactive mode?
