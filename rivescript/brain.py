@@ -672,6 +672,7 @@ class Brain(object):
                 if "=" in data:
                     # Setting a bot/env variable.
                     parts = data.split("=")
+                    parts[1] = self.callobjects(user, parts[1]);
                     self.say("Set " + tag + " variable " + text_type(parts[0]) + "=" + text_type(parts[1]))
                     target[parts[0]] = parts[1]
                 else:
@@ -680,6 +681,7 @@ class Brain(object):
             elif tag == "set":
                 # <set> user vars.
                 parts = data.split("=")
+                parts[1] = self.callobjects(user, parts[1]);
                 self.say("Set uservar " + text_type(parts[0]) + "=" + text_type(parts[1]))
                 self.master.set_uservar(user, parts[0], parts[1])
             elif tag in ["add", "sub", "mult", "div"]:
@@ -744,9 +746,12 @@ class Brain(object):
             reply = reply.replace('{{@{match}}}'.format(match=match), subreply)
 
         # Object caller.
-        reply = reply.replace("{__call__}", "<call>")
-        reply = reply.replace("{/__call__}", "</call>")
-        reCall = re.findall(r'<call>(.+?)</call>', reply)
+        reply = self.callobjects(user, reply);
+
+        return reply
+
+    def callobjects(self, user, input):
+        reCall = re.findall(r'{__call__}(.+?){/__call__}', input)
         for match in reCall:
             parts  = re.split(RE.ws, match)
             output = ''
@@ -777,9 +782,9 @@ class Brain(object):
                     raise ObjectError(RS_ERR_OBJECT_MISSING)
                 output = RS_ERR_OBJECT_MISSING
 
-            reply = reply.replace('<call>{match}</call>'.format(match=match), output)
+            input = input.replace('{{__call__}}{match}{{/__call__}}'.format(match=match), output)
 
-        return reply
+        return input
 
     def substitute(self, msg, kind):
         """Run a kind of substitution on a message.
